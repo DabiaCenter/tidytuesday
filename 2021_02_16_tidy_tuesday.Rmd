@@ -1,0 +1,127 @@
+---
+title: "TidyTemplate"
+date: 2021-02-16
+output: html_output
+---
+
+# TidyTuesday
+
+Join the R4DS Online Learning Community in the weekly #TidyTuesday event!
+Every week we post a raw dataset, a chart or article related to that dataset, and ask you to explore the data.
+While the dataset will be “tamed”, it will not always be tidy! As such you might need to apply various R for Data Science techniques to wrangle the data into a true tidy format.
+The goal of TidyTuesday is to apply your R skills, get feedback, explore other’s work, and connect with the greater #RStats community!
+As such we encourage everyone of all skills to participate!
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(tidytuesdayR)
+library(janitor)
+library(ggplot2)
+library(lubridate)
+
+```
+
+# Load the weekly Data
+
+Dowload the weekly data and make available in the `tt` object.
+
+```{r Load}
+
+tt <- tt_load("2021-02-16")
+
+```
+
+
+# Readme
+
+Take a look at the readme for the weekly data to get insight on the dataset.
+This includes a data dictionary, source, and a link to an article on the data.
+
+```{r Readme, eval = interactive()}
+
+tt
+
+```
+
+
+# Glimpse Data
+
+Take an initial look at the format of the data available.
+
+```{r Glimpse}
+
+tt %>% 
+  map(glimpse)
+
+```
+
+# Wrangle
+
+Explore the data and process it into a nice format for plotting! Access each dataset by name by using a dollarsign after the `tt` object and then the name of the data set.
+
+```{r Wrangle}
+poblacion_georgia <- tt$georgia_pop %>% 
+  clean_names() 
+
+#colnames(poblacion_georgia)
+
+```
+
+
+# Visualize
+
+Using your processed dataset, create your unique visualization.
+
+```{r Visualize}
+
+poblacion_georgia %>% 
+  ggplot(mapping = aes(x = year)) +
+  geom_line(mapping = aes(y = colored, linetype = "colored")) +
+  geom_line(mapping = aes(y = white, linetype = "White")) +
+  coord_flip() + 
+  scale_x_continuous(
+    name = "",
+    limits = c(min(poblacion_georgia$year), max(poblacion_georgia$year)),
+    expand = c(0, 0),
+    breaks = seq(min(poblacion_georgia$year), max(poblacion_georgia$year), 10)
+  ) +
+  scale_y_reverse(
+    name = "PERCENTS",
+    limits = c(100, 0),
+    expand = c(0, 0),
+    breaks = seq(0,100, 5)
+    ) +
+  theme_bw() +
+  theme(
+    legend.position = "bottom",
+    plot.title = element_text(hjust = 0.5),
+    panel.grid.minor = element_blank(),
+    panel.grid = element_line(size = 0.01, color = "orange"),
+    plot.background = element_rect(fill = "#ead4bc"),
+    panel.background = element_rect(fill = "#ead4bc"),
+    legend.background = element_rect(fill = "#ead4bc"),
+    legend.key = element_rect(fill = "#ead4bc"),
+    legend.text = element_text(margin = margin(r = 2, unit = "cm")) 
+  ) +
+  labs(
+    linetype = "",
+    title = "COMPARATIVE INCREASE OF WHITE AND COLORED\n POPULATION OF GEORGIA"
+  ) 
+  
+```
+
+# Save Image
+
+Save your image for sharing. Be sure to use the `#TidyTuesday` hashtag in your post on twitter! 
+
+```{r}
+
+# This will save your most recent plot
+ggsave(
+  filename = "My TidyTuesday Plot.png",
+  device = "png")
+
+```
