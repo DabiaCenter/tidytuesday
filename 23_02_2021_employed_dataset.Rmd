@@ -1,0 +1,71 @@
+---
+title: "23_02_2021_employed"
+author: "Cristal Rivera Picado"
+date: "23/2/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r}
+
+library(tidyverse)
+library(tidytuesdayR)
+library(scales)
+theme_set(theme_light())
+library(RColorBrewer)
+```
+
+
+# Cargando los datos
+
+```{r Load}
+tuesdata <- tidytuesdayR::tt_load('2021-02-23')
+employed <- tuesdata$employed %>%
+  mutate(dimension = case_when(
+    race_gender == "TOTAL" ~ "Total",
+    race_gender %in% c("Men", "Women") ~ "Gender",
+    TRUE ~ "Race"
+  ))
+```
+
+```{r}
+employed_cleaned <- employed %>%
+  filter(!is.na(employ_n)) %>%
+  mutate(industry = fct_lump(industry, 15, w = employ_n),
+         industry = fct_reorder(industry, employ_n, sum))
+
+```
+
+#Grafico
+
+```{r}
+ grafico <- employed_cleaned %>%
+  filter(dimension == "Gender") %>%
+   filter(year %in% c(2019, 2020)) %>% 
+  group_by(industry, year, race_gender) %>%
+  summarize(employ_n = sum(employ_n)) %>%
+  ggplot(aes(year, employ_n, color = race_gender)) +
+  geom_line() +
+  facet_wrap(~ industry, scales = "free_y") +
+  expand_limits(y = 0) +
+  scale_y_continuous(labels = comma) +
+  labs(y = "# employed in industry",
+       x = "Year",
+       color = "Gender")+
+  ggtitle("Number of employed in the industry by gender")+
+  scale_linetype_manual(values = c(rep("solid", 20), rep("solid", 20))) +
+  scale_color_manual(values = c(brewer.pal(10, "Set1"), brewer.pal(10, "Set1"))) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+  scale_x_continuous( breaks = 2019:2020)
+
+
+grafico
+```
+
+```{r}
+View(employed_cleaned)
+```
+
