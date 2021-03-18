@@ -1,0 +1,122 @@
+---
+title: "TidyTemplate"
+date: 2021-03-17
+output: html_output
+---
+
+# TidyTuesday
+
+Join the R4DS Online Learning Community in the weekly #TidyTuesday event!
+Every week we post a raw dataset, a chart or article related to that dataset, and ask you to explore the data.
+While the dataset will be “tamed”, it will not always be tidy! As such you might need to apply various R for Data Science techniques to wrangle the data into a true tidy format.
+The goal of TidyTuesday is to apply your R skills, get feedback, explore other’s work, and connect with the greater #RStats community!
+As such we encourage everyone of all skills to participate!
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(tidytuesdayR)
+library(ggplot2)
+library(forcats)
+library(scales)
+
+```
+
+# Load the weekly Data
+
+Dowload the weekly data and make available in the `tt` object.
+
+```{r Load}
+
+tt <- tt_load("2021-03-16")
+
+
+```
+
+
+# Readme
+
+Take a look at the readme for the weekly data to get insight on the dataset.
+This includes a data dictionary, source, and a link to an article on the data.
+
+```{r Readme, eval = interactive()}
+
+tt
+
+```
+
+
+# Glimpse Data
+
+Take an initial look at the format of the data available.
+
+```{r Glimpse}
+
+tt %>% 
+  map(glimpse)
+
+```
+
+# Wrangle
+
+Explore the data and process it into a nice format for plotting! Access each dataset by name by using a dollarsign after the `tt` object and then the name of the data set.
+
+```{r Wrangle}
+
+head(tt$games)
+
+distinct(tt$games, year, month) #el ultimo mes es febrero
+
+games <- tt$games %>% 
+  filter(year == 2021 & month == "February") %>% 
+  arrange(desc(peak)) %>% 
+  head(n = 10) %>% 
+  select(-c(gain, avg_peak_perc)) %>% 
+  mutate(gamename = fct_reorder(gamename, peak))
+  
+
+```
+
+
+# Visualize
+
+Using your processed dataset, create your unique visualization.
+
+```{r Visualize}
+
+plot <- games %>% 
+  ggplot(aes(x = gamename)) +
+  geom_segment(aes(y = peak, xend=gamename, yend=0)) +
+  geom_point(aes(y = peak), size=4, color="orange") +
+  theme_bw() +
+  xlab("") +
+  coord_flip() +
+  scale_y_continuous(labels = comma_format(big.mark = ".",
+                                           decimal.mark = ","),
+                     limits = c(0, max(games$peak) * 1.1)) +
+  geom_text(aes(y = peak, label = peak), 
+            position = position_dodge(width = 2), vjust=-0.8) + 
+  labs(
+    title = "Top 10: Videojuegos con el mayor número de \n jugadores al mismo tiempo en Febrero, 2020",
+    y = "Cant. Jugadores",
+    x = "Videojuegos"
+  )
+
+
+
+```
+
+# Save Image
+
+Save your image for sharing. Be sure to use the `#TidyTuesday` hashtag in your post on twitter! 
+
+```{r}
+
+# This will save your most recent plot
+ggsave(
+  filename = "My TidyTuesday Plot.png",
+  device = "png")
+
+```
