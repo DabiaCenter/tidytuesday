@@ -1,0 +1,59 @@
+---
+title: "TidyTemplate"
+date: 2021-04-06
+output: html_output
+---
+
+# TidyTuesday
+
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(tidytuesdayR)
+library(scales)
+library(tidytext)
+
+```
+
+# Load the weekly Data
+
+Dowlnoad the weekly data and make available in the `tt` object.
+
+```{r Load}
+
+tt <- tt_load("2021-04-06")
+tt
+
+```
+
+```{r}
+
+
+forest <- tt$forest %>% 
+            filter(str_length(code) == 3) %>% 
+                  
+           rename(country = entity) 
+            
+
+forest
+```
+```{r}
+forest %>% 
+  group_by(year) %>% 
+  slice_max(abs(net_forest_conversion), n = 10) %>% 
+  ungroup() %>% 
+  mutate(country = reorder_within(country, net_forest_conversion,year)) %>% 
+  ggplot(aes(net_forest_conversion, country)) +
+  geom_col(aes(fill = net_forest_conversion > 0)) +
+  scale_fill_manual(values = c("sienna3", "forestgreen")) +
+  facet_wrap( ~ year, scales = "free_y") +
+  scale_x_continuous(label = comma) +
+  scale_y_reordered() +
+  theme(legend.position = "none", panel.background = element_blank()) +
+  labs(x = "Cambio neto en bosque por año(hectáreas)", y = "País") + 
+  ggtitle("Top 10 países con cambio neto en bosque para cuatro años")
+```
+
