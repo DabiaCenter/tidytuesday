@@ -40,18 +40,19 @@ surveys <-survey_usd  %>%
 ```
 
 ```{r}
-survey_top5 <- surveys %>%  top_n(15,annual_salary)
+survey_top_15 <- surveys %>%  top_n(15,annual_salary)
 ```
 
 ```{r}
 
-survey_top5 %>%
+plot <- survey_top_15 %>%
   ggplot(aes(x = annual_salary, y = job_title, fill = job_title)) + geom_bar(stat = "identity") +
    scale_y_discrete(breaks = "100", labels = dollar_format())+
   theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.title = element_blank()) +
   labs(x= "Salario Anual ($)", y = "Puesto laboral") +
   ggtitle("Top 15 de las profesiones mejores para el año 2021(según la encuesta)") 
 
+plot
 
 ```
 
