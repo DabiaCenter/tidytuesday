@@ -1,0 +1,59 @@
+---
+title: "18_05_2021_employed"
+author: "Cristal Rivera Picado"
+date: "18/5/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r}
+
+library(tidyverse)
+library(tidytuesdayR)
+library(scales)
+library(lubridate)
+library(RColorBrewer)
+```
+
+
+# Cargando los datos
+
+```{r Load}
+tt <- tt_load('2021-05-18')
+
+```
+```{r}
+survey <- tt$survey
+
+survey_usd <- survey %>% 
+  filter(currency == "USD") %>% 
+  filter(annual_salary >= 10000,
+         annual_salary <= 2e6)
+
+surveys <-survey_usd  %>% 
+  mutate(
+  overall_experience = str_replace(overall_years_of_professional_experience, " - ","-"),
+  overall_experience = fct_reorder(overall_experience,parse_number(overall_experience)))
+
+```
+
+```{r}
+survey_top5 <- surveys %>%  top_n(15,annual_salary)
+```
+
+```{r}
+
+survey_top5 %>%
+  ggplot(aes(x = annual_salary, y = job_title, fill = job_title)) + geom_bar(stat = "identity") +
+   scale_y_discrete(breaks = "100", labels = dollar_format())+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.title = element_blank()) +
+  labs(x= "Salario Anual ($)", y = "Puesto laboral") +
+  ggtitle("Top 15 de las profesiones mejores para el año 2021(según la encuesta)") 
+
+
+```
+
+
+
