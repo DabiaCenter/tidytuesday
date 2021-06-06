@@ -1,0 +1,62 @@
+---
+title: "TidyTemplate"
+date: 2021-06-06
+output: html_output
+---
+
+# TidyTuesday
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(tidytuesdayR)
+library(hrbrthemes)
+library(here)
+```
+
+# Load the weekly Data
+
+
+```{r Load}
+
+summary <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-06-01/summary.csv')
+
+
+```
+
+# Visualize
+
+```{r Visualize}
+summary %>% 
+  ggplot(aes(x = season, 
+             y = viewers_finale)) + 
+  geom_point(size = 4,
+             color = "red",
+             fill = alpha("orange", 0.3),
+             alpha = 0.7, 
+             shape = 21,
+             stroke = 2) + 
+  geom_segment(aes(x= season, 
+                   xend = season,
+                   y= 0, 
+                   yend = viewers_finale)) + 
+  labs(x = "Season", 
+       y = "Viewers-finale (millions)",
+       title =  "Viewer per finale of the Survivor TV Show") + 
+  theme(panel.grid = element_blank()) + 
+  theme_ipsum()
+
+
+  
+```
+
+# Save Image
+
+```{r}
+ggsave(
+  filename = here("2021-06-01_tidytuesday/2021-06-01_tidytuesda.png"),
+  device = "png")
+
+```
