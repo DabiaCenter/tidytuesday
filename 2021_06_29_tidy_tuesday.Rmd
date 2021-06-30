@@ -1,0 +1,93 @@
+---
+title: "Untitled"
+author: "Cristal Rivera Picado"
+date: "29/6/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+
+library(tidyverse)
+library(tidytuesdayR)
+library(scales)
+library(lubridate)
+library(janitor)
+theme_set(theme_light())
+library(RColorBrewer)
+```
+
+
+# Cargando los datos
+
+```{r Load}
+tuesdata <- tidytuesdayR::tt_load('2021-06-29')
+tuesdata <- tidytuesdayR::tt_load(2021, week = 27)
+
+animal_rescues <- tuesdata$animal_rescues
+
+```
+
+
+```{r}
+View(animal_rescues)
+summary(animal_rescues)
+```
+```{r}
+animal_rescues_clean <- animal_rescues %>% 
+  clean_names()
+#View(animal_rescues_clean)
+```
+
+
+```{r}
+animal_rescues_clean %>%  
+  count(special_service_type_category)
+```
+```{r}
+animal_rescues_clean %>%  
+  count(animal_group_parent, sort = TRUE)
+```
+
+
+
+
+```{r}
+
+animal_rescues_clean$date_time_of_call <- as.Date(animal_rescues_clean$date_time_of_call, format =  "%m/%d/%Y %H:%M")
+class(animal_rescues_clean$date_time_of_call)
+```
+```{r}
+year(animal_rescues_clean$date_time_of_call)
+```
+
+```{r}
+animal_rescues_clean2 <- animal_rescues_clean %>% 
+  mutate(Year = year(animal_rescues_clean$date_time_of_call)) %>% 
+  filter(animal_group_parent == c("Dog", "Cat", "Bird")) 
+```
+
+
+```{r}
+
+animal_rescues_clean2 %>% 
+ggplot(aes(x = cal_year )) + 
+  geom_histogram(aes(fill =  special_service_type_category), bins = 25) +
+ facet_grid(animal_group_parent ~ .) +
+  theme_light() + 
+  scale_fill_discrete(name = "Special Service Type Category") +
+  xlab(label = "Year") 
+  
+  
+```
+
+
+
+
+
+```{r}
+```
+
